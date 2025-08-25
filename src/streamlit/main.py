@@ -9,6 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from client import MCPClient
 from typing import Optional
+from utils import run_async
 
 # Initialize session state
 if "client" not in st.session_state:
@@ -20,39 +21,57 @@ if "messages" not in st.session_state:
 if "tools_info" not in st.session_state:
     st.session_state.tools_info = None
 
-# Helper function to run async code in Streamlit
-def run_async(coro):
-    """Run an async function in a new event loop"""
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    
-    if loop.is_running():
-        # If loop is already running, use a thread
-        result = [None]
-        exception = [None]
-        
-        def run_in_thread():
-            try:
-                new_loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(new_loop)
-                result[0] = new_loop.run_until_complete(coro)
-                new_loop.close()
-            except Exception as e:
-                exception[0] = e
-        
-        thread = threading.Thread(target=run_in_thread)
-        thread.start()
-        thread.join()
-        
-        if exception[0]:
-            raise exception[0]
-        return result[0]
-    else:
-        return loop.run_until_complete(coro)
 
+def process_query(user_input: str):
+     with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                try:
+                    response, should_continue, detection_result = run_async(st.session_state.client.process_query(user_input))
+                    
+                    # Process response parts
+                    response_text = ""
+                    thought_text = ""
+                    
+                    for part in response.candidates[0].content.parts:
+                        if not part.text:
+                            continue
+                        if hasattr(part, 'thought') and part.thought:
+                            thought_text += part.text + "\n"
+                        else:
+                            response_text += part.text + "\n"
+                    
+                    # Display thought if available
+                    if thought_text.strip():
+                        with st.expander("🧠 AI Thoughts", expanded=False):
+                            st.write(thought_text.strip())
+                    
+                    # Display main response
+                    if response_text.strip():
+                        st.write(response_text.strip())
+                        st.session_state.messages.append({
+                            "role": "assistant", 
+                            "content": response_text.strip()
+                        })
+                    else:
+                        st.write("No response generated.")
+                        st.session_state.messages.append({
+                            "role": "assistant", 
+                            "content": "No response generated."
+                        })
+                    
+                    return response, should_continue, detection_result
+
+                except Exception as e:
+                    error_msg = f"Error processing query: {str(e)}"
+                    st.error(error_msg)
+                    st.session_state.messages.append({
+                        "role": "assistant", 
+                        "content": error_msg
+                    })
+
+                    return error_msg, False, None
+
+        
 # Streamlit app
 st.title("🤖 MCP Client Interface")
 st.markdown("Connect to your MCP server and chat with Gemini AI")
@@ -147,50 +166,10 @@ if st.session_state.connected:
             st.write(user_input)
         
         # Get AI response
-        with st.chat_message("assistant"):
-            with st.spinner("Thinking..."):
-                try:
-                    response, should_continue, detection_result = run_async(st.session_state.client.process_query(user_input))
-                    
-                    # Process response parts
-                    response_text = ""
-                    thought_text = ""
-                    
-                    for part in response.candidates[0].content.parts:
-                        if not part.text:
-                            continue
-                        if hasattr(part, 'thought') and part.thought:
-                            thought_text += part.text + "\n"
-                        else:
-                            response_text += part.text + "\n"
-                    
-                    # Display thought if available
-                    if thought_text.strip():
-                        with st.expander("🧠 AI Thoughts", expanded=False):
-                            st.write(thought_text.strip())
-                    
-                    # Display main response
-                    if response_text.strip():
-                        st.write(response_text.strip())
-                        st.session_state.messages.append({
-                            "role": "assistant", 
-                            "content": response_text.strip()
-                        })
-                    else:
-                        st.write("No response generated.")
-                        st.session_state.messages.append({
-                            "role": "assistant", 
-                            "content": "No response generated."
-                        })
-                    
-                except Exception as e:
-                    error_msg = f"Error processing query: {str(e)}"
-                    st.error(error_msg)
-                    st.session_state.messages.append({
-                        "role": "assistant", 
-                        "content": error_msg
-                    })
-    
+        should_continue = True
+        while should_continue:
+            response, should_continue, detection_result = process_query(user_input)
+        
     # Clear chat button
     if st.button("🗑️ Clear Chat"):
         st.session_state.messages = []
