@@ -1,7 +1,7 @@
 from fastmcp import FastMCP
 from file_operations_tools import register_tools
 from data_analysis_tools import register_tools as data_reading_register_tools
-
+from data_visualization import register_tools as data_viz_register_tools
 
 # Initialize FastMCP server
 mcp = FastMCP("Excel Data Reader 2")
@@ -9,6 +9,7 @@ mcp = FastMCP("Excel Data Reader 2")
 # Register all tools
 register_tools(mcp)
 data_reading_register_tools(mcp)
+data_viz_register_tools(mcp)
 
 
 if __name__ == "__main__":

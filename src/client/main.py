@@ -4,6 +4,7 @@ from google.genai import types
 import asyncio
 from dotenv import load_dotenv
 from typing import Optional, List, Dict, Any
+import json 
 
 # import prompt
 from . import prompt
@@ -31,7 +32,7 @@ class MCPClient:
             print(f"Failed to connect to MCP server: {str(e)}")
             return False
 
-    async def call_gemini(self, messages: List[Dict[str, Any]]):
+    async def call_gemini(self):
         """Call Gemini API with current messages"""
         if not self.mcp_client:
             raise Exception("MCP client is not connected")
@@ -39,7 +40,7 @@ class MCPClient:
         async with self.mcp_client:
             response = await self.gemini_client.aio.models.generate_content(
                 model="gemini-2.5-flash",
-                contents=messages,
+                contents=self.messages,
                 config=genai.types.GenerateContentConfig(
                     temperature=0.1,
                     tools=[self.mcp_client.session],
@@ -57,12 +58,19 @@ class MCPClient:
             raise Exception("MCP client is not connected")
             
         self.messages.append({"role": "user", "parts": [{"text": query}]})
-        response = await self.call_gemini(self.messages)
+        response = await self.call_gemini()
         self.messages.append({"role": "model", "parts": response.candidates[0].content.parts})
 
         should_continue, detection_result = await self.ConversationController.process_turn(self.messages)
 
         return response, should_continue, detection_result
+
+    def check_json(self, response_text: str):
+        try:
+            json_data = json.loads(response_text)
+            return json_data
+        except json.JSONDecodeError:
+            return None
 
     async def process_query_loop(self, query: str):
         should_continue = True

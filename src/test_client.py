@@ -74,11 +74,11 @@ class MCPClient:
             except Exception as e:
                 print(f"Error calling tool {tool_name}: {e}")
 
-            response = self.gemini.models.generate_content(
-                model=MODEL,
-                contents=self.messages,
-                config=config,
-            )
+        response = self.gemini.models.generate_content(
+            model=MODEL,
+            contents=self.messages,
+            config=config,
+        )
 
         return response.text
 

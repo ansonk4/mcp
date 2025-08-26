@@ -123,13 +123,20 @@ class MCPClientApp:
                 with st.expander("🧠 AI Thoughts", expanded=False):
                     st.write(thought_text.strip())
             
-            # Display and store main response
-            content = response_text.strip() if response_text.strip() else "No response generated."
-            st.write(content)
-            
+            # check is image
+            json_data = st.session_state.client.check_json(response_text)
+            if json_data:
+                content = json_data.get("text", "")
+                image_path = json_data.get("image_path", "")
+                st.write(content)
+                st.image(image_path)
+            else:
+                content = response_text.strip() if response_text.strip() else "No response generated."
+                st.write(content)
+
             st.session_state.messages.append({
                 "role": "assistant", 
-                "content": content
+                "content": response_text if json_data else content
             })
             
             return response, should_continue, detection_result
@@ -263,8 +270,7 @@ class MCPClientApp:
                 should_continue = True
                 while should_continue:
                     response, should_continue, detection_result = self.process_query(user_input)
-                    if not should_continue:
-                        break
+
     
     def _render_welcome_screen(self):
         """Render welcome screen when not connected."""
