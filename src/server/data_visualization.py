@@ -37,7 +37,6 @@ def register_tools(mcp: FastMCP):
         """
         try:
             # Parse the distribution data
-            print(distribution_data)
             distribution = json.loads(distribution_data)
             
             # Extract keys and values
@@ -83,7 +82,7 @@ def register_tools(mcp: FastMCP):
             temp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
             temp_file.write(img_bytes)
             temp_file.close()
-            print(temp_file.name)
+
             return {"image_path": temp_file.name}
 
             # encoded = base64.b64encode(img_bytes).decode('utf-8')

@@ -4,6 +4,7 @@ import sys
 import os
 from typing import Optional, Tuple, Any
 from dataclasses import dataclass
+import re
 
 # Add the src directory to the path to make imports work
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -30,7 +31,8 @@ class MCPClientApp:
     
     def __init__(self):
         self.init_session_state()
-    
+        self.max_session_turns = 3  # Max turns for auto continuation
+
     def init_session_state(self):
         """Initialize Streamlit session state with default values."""
         defaults = {
@@ -100,8 +102,8 @@ class MCPClientApp:
             
         except Exception as e:
             st.error(f"Error during disconnect: {str(e)}")
-    
-    def process_query(self, user_input: str) -> Tuple[Any, bool, Any]:
+
+    def process_query(self, user_input: str, check_continue: bool=True) -> Tuple[Any, bool, Any]:
         """
         Process user query and return response.
         
@@ -113,7 +115,7 @@ class MCPClientApp:
         """
         try:
             response, should_continue, detection_result = run_async(
-                st.session_state.client.process_query(user_input)
+                st.session_state.client.process_query(user_input, check_continue)
             )
             
             response_text, thought_text = self._extract_response_parts(response)
@@ -122,9 +124,17 @@ class MCPClientApp:
             if thought_text.strip():
                 with st.expander("🧠 AI Thoughts", expanded=False):
                     st.write(thought_text.strip())
-            
+
+
             # check is image
-            json_data = st.session_state.client.check_json(response_text)
+            
+            json_match = re.search(r"```json\s*({.*?})\s*```", response_text, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(1)
+                json_data = st.session_state.client.check_json(json_str)
+            else:
+                json_data = st.session_state.client.check_json(response_text)
+
             if json_data:
                 content = json_data.get("text", "")
                 image_path = json_data.get("image_path", "")
@@ -144,10 +154,10 @@ class MCPClientApp:
         except Exception as e:
             error_msg = f"Error processing query: {str(e)}"
             st.error(error_msg)
-            st.session_state.messages.append({
-                "role": "assistant", 
-                "content": error_msg
-            })
+            # st.session_state.messages.append({
+            #     "role": "assistant", 
+            #     "content": error_msg
+            # })
             return error_msg, False, None
     
     def _extract_response_parts(self, response) -> Tuple[str, str]:
@@ -265,13 +275,19 @@ class MCPClientApp:
     
     def _process_with_continuation(self, user_input: str):
         """Process query with continuation support."""
+
+        counter = 0
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 should_continue = True
-                while should_continue:
+                while should_continue and counter < self.max_session_turns:
                     response, should_continue, detection_result = self.process_query(user_input)
+                    user_input = "If you have any unfinished tasks, please continue working on them. \
+                                If you’re unsure about anything in my instructions, you can use available tools—such \
+                                as listing all files, listing all columns, or retrieving unique values to help clarify my input."
+                    counter += 1
 
-    
+
     def _render_welcome_screen(self):
         """Render welcome screen when not connected."""
         st.info("👆 Please connect to your MCP server using the sidebar to start chatting.")

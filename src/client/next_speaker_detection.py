@@ -4,6 +4,7 @@ import json
 import re
 from google import genai
 
+from . import prompt
 
 @dataclass
 class NextSpeakerResult:
@@ -20,33 +21,7 @@ class NextSpeakerDetector:
     working or wait for user input.
     """
     
-    CHECK_PROMPT = """
-Analyze your previous response in this conversation and determine who should speak next.
-
-Decision Rules:
-1. **Model Continues**: Choose this if:
-   - Your response indicates an immediate next action (e.g., "I'll now check the files...")
-   - The task is **incomplete** or **an error occured**
-   - You're in the middle of a multi-step process
-   - You started a task but haven't finished it yet
-
-2. **Question to User**: Choose this if:
-   - Your response ends with a direct question to the user
-   - You're asking for clarification, preferences, or additional information
-
-3. **Waiting for User**: Choose this if:
-   - You've completed the requested task
-   - You've provided a final answer or summary
-   - The conversation has reached a natural stopping point
-
-Respond with valid JSON in this exact format:
-{
-    "reasoning": "Brief explanation of why you chose this option",
-    "next_speaker": "user" or "model"
-}
-
-Only respond with the JSON, no other text.
-"""
+    CHECK_PROMPT = prompt.check_prompt
 
     def __init__(self, gemini_client):
         self.gemini_client = gemini_client
@@ -282,13 +257,6 @@ class ConversationController:
             return False, None
         
         return result.should_continue, result
-    
-    def get_continue_message(self) -> Dict[str, Any]:
-        """Get the message to continue the conversation"""
-        return {
-            "role": "user",
-            "parts": [{"text": self.CONTINUE_PROMPT}]
-        }
     
     def reset_turn_counter(self):
         """Reset the turn counter"""

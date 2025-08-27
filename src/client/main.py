@@ -52,7 +52,7 @@ class MCPClient:
             )
         return response
     
-    async def process_query(self, query: str):
+    async def process_query(self, query: str, check_continue:bool = True):
         """Process a user query and return the response"""
         if not self.mcp_client:
             raise Exception("MCP client is not connected")
@@ -61,7 +61,10 @@ class MCPClient:
         response = await self.call_gemini()
         self.messages.append({"role": "model", "parts": response.candidates[0].content.parts})
 
-        should_continue, detection_result = await self.ConversationController.process_turn(self.messages)
+        if check_continue:
+            should_continue, detection_result = await self.ConversationController.process_turn(self.messages)
+        else:
+            should_continue, detection_result = False, None
 
         return response, should_continue, detection_result
 
@@ -95,7 +98,9 @@ class MCPClient:
 
     async def get_initial_message(self):
         """Get the initial greeting message"""
-        response, _, _ = await self.process_query("Hello")
+        # self.messages.append({"role": "user", "parts": [{"text": prompt.system_prompt}]})
+        # self.messages.append({"role": "model", "parts": [{"text": "understand"}]})
+        response, _, _ = await self.process_query("Hello", check_continue=False)
         return response.text
 
     def get_tools_info(self):
