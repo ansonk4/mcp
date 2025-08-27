@@ -125,9 +125,7 @@ class MCPClientApp:
                 with st.expander("🧠 AI Thoughts", expanded=False):
                     st.write(thought_text.strip())
 
-
             # check is image
-            
             json_match = re.search(r"```json\s*({.*?})\s*```", response_text, re.DOTALL)
             if json_match:
                 json_str = json_match.group(1)
@@ -275,7 +273,6 @@ class MCPClientApp:
     
     def _process_with_continuation(self, user_input: str):
         """Process query with continuation support."""
-
         counter = 0
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):

@@ -1,0 +1,33 @@
+.App {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.mode-selector {
+  background-color: #34495e;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  color: white;
+}
+
+.mode-selector label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.mode-selector input[type="radio"] {
+  accent-color: #3498db;
+}
