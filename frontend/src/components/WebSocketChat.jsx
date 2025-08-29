@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './WebSocketChat.css';
 
-const WebSocketChat = () => {
+const WebSocketChat = forwardRef((_, ref) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [sessionId, setSessionId] = useState(null);
@@ -36,6 +36,15 @@ const WebSocketChat = () => {
       }
     };
   }, []);
+
+  // Expose functions to parent component
+  useImperativeHandle(ref, () => ({
+    connect: connectWebSocket,
+    disconnect: disconnectWebSocket,
+    clear: clearConversation,
+    isConnected,
+    isConnecting
+  }));
 
   const processResponseContent = (content) => {
     let text = content;
@@ -246,39 +255,6 @@ const WebSocketChat = () => {
 
   return (
     <div className="websocket-chat">
-      <header className="chat-header">
-        <h1>Data Analysis Assistant</h1>
-        <div className="connection-controls">
-          {!isConnected ? (
-            <button 
-              onClick={connectWebSocket} 
-              disabled={isConnecting}
-              className="connect-btn"
-            >
-              {isConnecting ? 'Connecting...' : 'Connect'}
-            </button>
-          ) : (
-            <button 
-              onClick={disconnectWebSocket}
-              className="disconnect-btn"
-            >
-              Disconnect
-            </button>
-          )}
-          <button onClick={clearConversation} className="clear-btn">
-            Clear Chat
-          </button>
-          {thoughts && (
-            <button 
-              onClick={() => setShowThoughts(!showThoughts)} 
-              className="thoughts-btn"
-            >
-              {showThoughts ? 'Hide Thoughts' : 'Show Thoughts'}
-            </button>
-          )}
-        </div>
-      </header>
-
       <div className="chat-container">
         <div className="messages">
           {messages.length === 0 ? (
@@ -375,6 +351,6 @@ const WebSocketChat = () => {
       </div>
     </div>
   );
-};
+});
 
 export default WebSocketChat;

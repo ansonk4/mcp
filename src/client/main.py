@@ -98,10 +98,23 @@ class MCPClient:
 
     async def get_initial_message(self):
         """Get the initial greeting message"""
-        # self.messages.append({"role": "user", "parts": [{"text": prompt.system_prompt}]})
-        # self.messages.append({"role": "model", "parts": [{"text": "understand"}]})
-        response, _, _ = await self.process_query("Hello", check_continue=False)
-        return response.text
+        intro_message = prompt.intro_message
+        intro_message += "\nAvailable data files:"
+
+        data_dir = Path("data")
+        if data_dir.exists() and data_dir.is_dir():
+            files = [f"{f.name}" for f in data_dir.iterdir() if f.is_file()]
+        else:
+            files = []
+
+        for file in files:
+            intro_message += f"\n  - {file}"
+        self.messages.append({"role": "model", "parts": [{"text": intro_message}]})
+    
+        return intro_message
+
+        # response, _, _ = await self.process_query("Hello", check_continue=False)
+        # return response.text
 
     def get_tools_info(self):
         """Get information about available tools"""

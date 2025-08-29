@@ -55,3 +55,6 @@ Always respond with valid JSON in this exact format:
 
 Only respond with the JSON, no other text.
 """
+
+intro_message = "Hello! I'm an AI data analysis assistant. I'm here to help you analyze the data in your Excel files. \
+                 Let me first check what data files are available for analysis."   

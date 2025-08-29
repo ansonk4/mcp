@@ -176,23 +176,6 @@ const HttpChat = () => {
 
   return (
     <div className="http-chat">
-      <header className="chat-header">
-        <h1>Data Analysis Assistant</h1>
-        <div className="header-controls">
-          <button onClick={clearConversation} className="clear-btn">
-            New Conversation
-          </button>
-          {thoughts && (
-            <button 
-              onClick={() => setShowThoughts(!showThoughts)} 
-              className="thoughts-btn"
-            >
-              {showThoughts ? 'Hide Thoughts' : 'Show Thoughts'}
-            </button>
-          )}
-        </div>
-      </header>
-
       <div className="chat-container">
         <div className="messages">
           {messages.length === 0 ? (
