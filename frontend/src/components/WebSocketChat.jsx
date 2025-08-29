@@ -13,8 +13,11 @@ const WebSocketChat = forwardRef((_, ref) => {
   const [thoughts, setThoughts] = useState('');
   const [showThoughts, setShowThoughts] = useState(false);
   const [error, setError] = useState('');
+  const [loadingElapsedTime, setLoadingElapsedTime] = useState(0); // Timer state
   const ws = useRef(null);
   const messagesEndRef = useRef(null);
+  const loadingStartTimeRef = useRef(null); // Use ref instead of state for start time
+  const loadingTimerRef = useRef(null); // Timer reference
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,8 +37,40 @@ const WebSocketChat = forwardRef((_, ref) => {
       if (ws.current) {
         ws.current.close();
       }
+      if (loadingTimerRef.current) {
+        clearInterval(loadingTimerRef.current);
+      }
     };
   }, []);
+
+  // Timer effect for loading state
+  useEffect(() => {
+    if (isLoading) {
+      // Start timer
+      loadingStartTimeRef.current = Date.now();
+      setLoadingElapsedTime(0);
+      
+      // Update elapsed time every 100ms
+      loadingTimerRef.current = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - loadingStartTimeRef.current) / 1000);
+        setLoadingElapsedTime(elapsed);
+      }, 100);
+    } else {
+      // Stop timer
+      if (loadingTimerRef.current) {
+        clearInterval(loadingTimerRef.current);
+        loadingTimerRef.current = null;
+      }
+      setLoadingElapsedTime(0);
+    }
+    
+    // Clean up on unmount
+    return () => {
+      if (loadingTimerRef.current) {
+        clearInterval(loadingTimerRef.current);
+      }
+    };
+  }, [isLoading]); // Only depend on isLoading
 
   // Expose functions to parent component
   useImperativeHandle(ref, () => ({
@@ -244,6 +279,13 @@ const WebSocketChat = forwardRef((_, ref) => {
     setError('');
     // Stop loading when clearing conversation
     setIsLoading(false);
+    // Reset timer state
+    loadingStartTimeRef.current = null;
+    setLoadingElapsedTime(0);
+    if (loadingTimerRef.current) {
+      clearInterval(loadingTimerRef.current);
+      loadingTimerRef.current = null;
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -294,9 +336,11 @@ const WebSocketChat = forwardRef((_, ref) => {
                       </div>
                     )}
                   </div>
-                  <div className="message-time">
-                    {msg.timestamp.toLocaleTimeString()}
-                  </div>
+                  {msg.role === 'system' && (
+                    <div className="message-time">
+                      {msg.timestamp.toLocaleTimeString()}
+                    </div>
+                  )}
                 </div>
               </div>
             ))
@@ -306,7 +350,7 @@ const WebSocketChat = forwardRef((_, ref) => {
               <div className="message-content">
                 <div className="loading-indicator">
                   <div className="spinner"></div>
-                  <span>Thinking...</span>
+                  <span>Thinking... ({loadingElapsedTime}s)</span>
                 </div>
               </div>
             </div>
@@ -343,7 +387,7 @@ const WebSocketChat = forwardRef((_, ref) => {
           <button 
             onClick={sendMessage} 
             disabled={!isConnected || !inputMessage.trim() || isLoading}
-            className="send-btn"
+            className={`send-btn ${inputMessage.trim() ? 'has-text' : ''}`}
           >
             {isLoading ? 'Sending...' : 'Send'}
           </button>

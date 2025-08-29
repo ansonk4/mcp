@@ -91,7 +91,7 @@
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-4);
-  background-color: var(--surface);
+  background-color: transparent;
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
@@ -148,6 +148,10 @@
   background-color: rgb(240, 238, 230); /* Custom light beige for user messages */
   color: #334155;
   border-bottom-right-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 40px; /* Ensure minimum height for proper centering */
 }
 
 .message.assistant .message-content {
@@ -156,17 +160,22 @@
   border-bottom-left-radius: var(--radius-xs);
   border: none;
   box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 40px; /* Ensure minimum height for proper centering */
 }
 
 .message.system .message-content {
-  background-color: var(--surface);
-  color: var(--on-surface-variant);
+  background-color: transparent;
+  color: rgb(108, 108, 104); /* Dark grey text */
   text-align: center;
   font-style: italic;
-  border: 1px solid var(--outline);
+  border: none;
   max-width: fit-content;
-  border-radius: var(--radius-full);
+  border-radius: 0;
   padding: var(--spacing-2) var(--spacing-4);
+  box-shadow: none;
 }
 
 .message.error .message-content {
@@ -305,7 +314,7 @@
 
 .message-time {
   font-size: var(--font-size-xs);
-  text-align: right;
+  text-align: center;
   margin-top: var(--spacing-1);
   opacity: 0.8;
 }
@@ -365,7 +374,7 @@
 .input-area {
   display: flex;
   gap: var(--spacing-2);
-  background-color: var(--surface);
+  background-color: transparent;
   padding: var(--spacing-3);
 }
 
@@ -394,7 +403,7 @@
 }
 
 .send-btn {
-  background-color: var(--primary);
+  background-color: rgb(227, 179, 165); /* Light coral - default */
   color: white;
   border: none;
   padding: var(--spacing-3) var(--spacing-5);
@@ -410,23 +419,27 @@
   gap: var(--spacing-1);
 }
 
+.send-btn.has-text:not(:disabled) {
+  background-color: rgb(198, 97, 63); /* Darker coral with text */
+}
+
 .send-btn:hover:not(:disabled) {
-  background-color: var(--primary-dark);
+  background-color: rgb(198, 97, 63); /* Darker coral on hover */
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-.send-btn:active {
+.send-btn:active:not(:disabled) {
   transform: translateY(0);
   box-shadow: var(--shadow);
 }
 
 .send-btn:disabled {
-  background: var(--surface-variant);
+  background: rgb(227, 179, 165); /* Light coral when disabled */
   cursor: not-allowed;
   transform: none;
   box-shadow: var(--shadow-sm);
-  color: var(--on-surface-variant);
+  color: white; /* Keep text white when disabled */
 }
 
 @media (max-width: 768px) {

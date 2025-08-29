@@ -1,10 +1,8 @@
 import { useState, useRef } from 'react';
 import WebSocketChat from './components/WebSocketChat';
-import HttpChat from './components/HttpChat';
 import './App.css';
 
 function App() {
-  const [chatMode, setChatMode] = useState('websocket'); // 'websocket' or 'http'
   const webSocketChatRef = useRef();
 
   // WebSocket connection functions
@@ -30,60 +28,31 @@ function App() {
     <div className="App">
       <div className="sidebar">
         <div className="sidebar-header">
-          <h2>Data Analysis Assistant</h2>
-        </div>
-        <div className="mode-selector">
-          <label className={chatMode === 'websocket' ? 'active' : ''}>
-            <input
-              type="radio"
-              value="websocket"
-              checked={chatMode === 'websocket'}
-              onChange={(e) => setChatMode(e.target.value)}
-            />
-            <span>WebSocket Mode</span>
-          </label>
-          <label className={chatMode === 'http' ? 'active' : ''}>
-            <input
-              type="radio"
-              value="http"
-              checked={chatMode === 'http'}
-              onChange={(e) => setChatMode(e.target.value)}
-            />
-            <span>HTTP Mode</span>
-          </label>
+          <h1>Data Analysis Assistant</h1>
         </div>
         <div className="sidebar-controls">
-          {chatMode === 'websocket' ? (
-            <>
-              <button 
-                className="control-button" 
-                onClick={connectWebSocket}
-              >
-                <span>Connect</span>
-              </button>
-              <button 
-                className="control-button disconnect" 
-                onClick={disconnectWebSocket}
-              >
-                <span>Disconnect</span>
-              </button>
-              <button className="control-button" onClick={clearConversation}>
-                <span>Clear Chat</span>
-              </button>
-            </>
-          ) : (
-            <button className="control-button" onClick={clearConversation}>
-              <span>New Conversation</span>
-            </button>
-          )}
+          <button 
+            className="control-button" 
+            onClick={connectWebSocket}
+          >
+            <span className="material-symbols-outlined">conversion_path</span>
+            <span>Connect</span>
+          </button>
+          <button 
+            className="control-button disconnect" 
+            onClick={disconnectWebSocket}
+          >
+            <span className="material-symbols-outlined">cloud_off</span>
+            <span>Disconnect</span>
+          </button>
+          <button className="control-button" onClick={clearConversation}>
+            <span className="material-symbols-outlined">delete</span>
+            <span>Clear Chat</span>
+          </button>
         </div>
       </div>
       <div className="main-content">
-        {chatMode === 'websocket' ? (
-          <WebSocketChat ref={webSocketChatRef} />
-        ) : (
-          <HttpChat />
-        )}
+        <WebSocketChat ref={webSocketChatRef} />
       </div>
     </div>
   );
