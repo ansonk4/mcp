@@ -129,6 +129,8 @@ Place any Excel files you want to analyze in the `data/` directory. The system w
    - Generating summaries and insights
    - Answering questions about your data
 
+For detailed guidance on how to interact with the assistant and a complete list of available tools, see the [User Guide](user_menu.md).
+
 ## Features
 
 - **Multi-step Task Processing**: The AI can automatically continue processing complex tasks without user intervention
