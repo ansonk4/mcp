@@ -28,10 +28,6 @@ const WebSocketChat = forwardRef((_, ref) => {
   }, [messages]);
 
   useEffect(() => {
-    // Generate a new session ID on component mount
-    const newSessionId = 'session_' + Math.random().toString(36).substr(2, 9);
-    setSessionId(newSessionId);
-    
     // Clean up on unmount
     return () => {
       if (ws.current) {
@@ -131,7 +127,9 @@ const WebSocketChat = forwardRef((_, ref) => {
   };
 
   const connectWebSocket = () => {
-    if (!sessionId) return;
+    // Generate a new session ID for each connection
+    const newSessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+    setSessionId(newSessionId);
     
     setIsConnecting(true);
     setError('');
@@ -142,8 +140,8 @@ const WebSocketChat = forwardRef((_, ref) => {
         ws.current.close();
       }
       
-      // Create new WebSocket connection
-      ws.current = new WebSocket(`ws://localhost:8000/ws/${sessionId}`);
+      // Create new WebSocket connection with new session ID
+      ws.current = new WebSocket(`ws://localhost:8000/ws/${newSessionId}`);
       
       ws.current.onopen = () => {
         console.log('WebSocket connected');
@@ -340,6 +338,15 @@ const WebSocketChat = forwardRef((_, ref) => {
                       </div>
                     )}
                   </div>
+                  <button 
+                    className="copy-button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(msg.content);
+                    }}
+                    title="Copy message"
+                  >
+                    <span className="material-symbols-outlined">content_copy</span>
+                  </button>
                   {msg.role === 'system' && (
                     <div className="message-time">
                       {msg.timestamp.toLocaleTimeString()}

@@ -193,6 +193,38 @@
 .message-text {
   word-wrap: break-word;
   line-height: var(--line-height-normal);
+  position: relative;
+  padding-bottom: 30px; /* Add space for the copy button */
+}
+
+.copy-button {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-1);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-content:hover .copy-button {
+  opacity: 1;
+}
+
+.copy-button:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.copy-button .material-symbols-outlined {
+  font-size: 16px;
+  color: var(--on-surface);
 }
 
 .message-text p {

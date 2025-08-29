@@ -203,7 +203,7 @@ class MCPClient:
         for file in files:
             intro_message += f"\n  - {file}"
         
-        intro_message += "\n\nHow would you like to analyze the data? Please enter your request:"
+        intro_message += "\n\nHow would you like to analyze the data?"
          
         self.messages.append({"role": "model", "parts": [{"text": intro_message}]})
     
