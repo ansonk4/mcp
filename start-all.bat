@@ -12,7 +12,7 @@ cd /d "%BASE_DIR%"
 
 :: Start MCP Server
 echo Starting MCP Server on http://127.0.0.1:9000...
-start "MCP Server" /d "%BASE_DIR%" cmd /c ".venv\Scripts\activate.bat && python -m src.server.main"
+start "MCP Server" /d "%BASE_DIR%" cmd /c ".venv\Scripts\activate.bat && python -m src/server/main"
 
 :: Start AI API Server
 echo Starting AI API Server on http://localhost:8000...
