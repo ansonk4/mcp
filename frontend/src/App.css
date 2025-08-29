@@ -47,7 +47,7 @@
 .control-button {
   background-color: transparent;
   color: rgb(108, 108, 104); /* Dark grey text */
-  border: none;
+  border: none !important;
   padding: var(--spacing-2) var(--spacing-4); /* Reduced padding */
   border-radius: var(--radius-lg);
   cursor: pointer;
@@ -60,6 +60,14 @@
   gap: var(--spacing-2); /* Reduced gap */
   box-shadow: none;
   line-height: 1.2; /* Ensures consistent line height */
+  outline: none !important; /* Remove focus outline */
+}
+
+.control-button:focus,
+.control-button:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .control-button .material-symbols-outlined {
@@ -73,6 +81,8 @@
 
 .control-button:active {
   transform: translateY(0);
+  outline: none !important;
+  border: none !important;
 }
 
 .control-button:disabled {
