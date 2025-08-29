@@ -23,7 +23,7 @@ The system is composed of three main parts:
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ansonk4/mcp
    cd mcp
    ```
 
