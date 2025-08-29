@@ -83,7 +83,9 @@ def register_tools(mcp: FastMCP):
             temp_file.write(img_bytes)
             temp_file.close()
 
-            return {"image_path": temp_file.name}
+            # Return just the basename of the file for cross-platform compatibility
+            import os
+            return {"image_path": os.path.basename(temp_file.name)}
 
             # encoded = base64.b64encode(img_bytes).decode('utf-8')
             # return {"image": encoded}

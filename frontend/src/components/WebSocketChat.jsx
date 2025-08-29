@@ -96,7 +96,9 @@ const WebSocketChat = forwardRef((_, ref) => {
         if (parsed.text && parsed.image_path) {
           text = parsed.text;
           // Extract filename from the absolute path and construct the correct URL
-          const filename = parsed.image_path.split('/').pop();
+          // Handle both forward slashes and backslashes for cross-platform compatibility
+          const pathSeparator = parsed.image_path.includes('\\') ? '\\' : '/';
+          const filename = parsed.image_path.split(pathSeparator).pop();
           imageData = {
             path: parsed.image_path,
             url: `http://localhost:8000/image/${filename}`
@@ -112,7 +114,9 @@ const WebSocketChat = forwardRef((_, ref) => {
         if (parsed.text && parsed.image_path) {
           text = parsed.text;
           // Extract filename from the absolute path and construct the correct URL
-          const filename = parsed.image_path.split('/').pop();
+          // Handle both forward slashes and backslashes for cross-platform compatibility
+          const pathSeparator = parsed.image_path.includes('\\') ? '\\' : '/';
+          const filename = parsed.image_path.split(pathSeparator).pop();
           imageData = {
             path: parsed.image_path,
             url: `http://localhost:8000/image/${filename}`

@@ -22,7 +22,7 @@ Exact format (no modifications allowed):
 
 {
     "text": "[Your textual explanation of the analysis and visualization]",
-    "image_path": "/tmp/graph_12345.png"
+    "image_path": "graph_12345.png"
 }
 
 Keep your responses clear, structured, and conversational.  
