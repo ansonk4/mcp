@@ -95,7 +95,7 @@
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3);
+  gap: var(--spacing-2);
 }
 
 .welcome-message {
@@ -151,7 +151,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 40px; /* Ensure minimum height for proper centering */
+  min-height: 30px; /* Reduced minimum height for proper centering */
 }
 
 .message.assistant .message-content {
@@ -163,7 +163,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 40px; /* Ensure minimum height for proper centering */
+  min-height: 30px; /* Reduced minimum height for proper centering */
 }
 
 .message.system .message-content {
@@ -194,41 +194,34 @@
   word-wrap: break-word;
   line-height: var(--line-height-normal);
   position: relative;
-  padding-bottom: 30px; /* Add space for the copy button */
-}
-
-.copy-button {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid var(--outline);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-1);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.message-content:hover .copy-button {
-  opacity: 1;
-}
-
-.copy-button:hover {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: var(--shadow-sm);
-}
-
-.copy-button .material-symbols-outlined {
-  font-size: 16px;
-  color: var(--on-surface);
+  padding-right: 30px; /* Space for copy button */
 }
 
 .message-text p {
   margin: 0 0 var(--spacing-2);
+}
+
+.copy-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--on-surface-variant);
+  padding: var(--spacing-1);
+  border-radius: var(--radius-sm);
+  opacity: 0.7;
+  transition: all var(--transition-fast);
+}
+
+.copy-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.copy-button .material-symbols-outlined {
+  font-size: var(--font-size-base);
 }
 
 .message-text ul,

@@ -338,15 +338,24 @@ const WebSocketChat = forwardRef((_, ref) => {
                       </div>
                     )}
                   </div>
-                  <button 
-                    className="copy-button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(msg.content);
-                    }}
-                    title="Copy message"
-                  >
-                    <span className="material-symbols-outlined">content_copy</span>
-                  </button>
+                  {msg.role === 'assistant' && (
+                    <button 
+                      className="copy-button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(msg.content)
+                          .then(() => {
+                            // Optional: Show a confirmation message
+                            console.log('Message copied to clipboard');
+                          })
+                          .catch(err => {
+                            console.error('Failed to copy message: ', err);
+                          });
+                      }}
+                      title="Copy message"
+                    >
+                      <span className="material-symbols-outlined">content_copy</span>
+                    </button>
+                  )}
                   {msg.role === 'system' && (
                     <div className="message-time">
                       {msg.timestamp.toLocaleTimeString()}
