@@ -36,6 +36,40 @@
   font-family: var(--font-family-decorative);
 }
 
+.model-selection {
+  padding: 0 var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+.model-selection label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.model-select {
+  width: 100%;
+  padding: var(--spacing-2);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-md);
+  background-color: white;
+  font-size: var(--font-size-sm);
+  color: #1e293b;
+  margin-bottom: var(--spacing-2);
+}
+
+.custom-model-input {
+  width: 100%;
+  padding: var(--spacing-2);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-md);
+  background-color: white;
+  font-size: var(--font-size-sm);
+  color: #1e293b;
+  margin-bottom: var(--spacing-2);
+}
+
 .sidebar-controls {
   display: flex;
   flex-direction: column;

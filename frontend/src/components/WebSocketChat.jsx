@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './WebSocketChat.css';
 
-const WebSocketChat = forwardRef((_, ref) => {
+const WebSocketChat = forwardRef(({ model }, ref) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [sessionId, setSessionId] = useState(null);
@@ -259,7 +259,8 @@ const WebSocketChat = forwardRef((_, ref) => {
     try {
       ws.current.send(JSON.stringify({
         message: inputMessage,
-        check_continue: true
+        check_continue: true,
+        model: model
       }));
       setInputMessage('');
     } catch (err) {
