@@ -194,7 +194,11 @@
   word-wrap: break-word;
   line-height: var(--line-height-normal);
   position: relative;
+}
+
+.message.assistant .message-text {
   padding-right: 30px; /* Space for copy button */
+  padding-bottom: 30px; /* Space for copy button at bottom */
 }
 
 .message-text p {
@@ -203,8 +207,8 @@
 
 .copy-button {
   position: absolute;
-  top: 0;
-  right: 0;
+  bottom: var(--spacing-2);
+  right: var(--spacing-2);
   background: transparent;
   border: none;
   cursor: pointer;
