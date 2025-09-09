@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './WebSocketChat.css';
 
-const WebSocketChat = forwardRef(({ model }, ref) => {
+const WebSocketChat = forwardRef(({ model, onConnectionChange }, ref) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [sessionId, setSessionId] = useState(null);
@@ -147,6 +147,15 @@ const WebSocketChat = forwardRef(({ model }, ref) => {
         console.log('WebSocket connected');
         setIsConnected(true);
         setIsConnecting(false);
+        if (onConnectionChange) onConnectionChange(true);
+        
+        // Send model selection to backend only if model is not empty
+        if (ws.current && model && model.trim() !== '') {
+          ws.current.send(JSON.stringify({
+            type: 'model_selection',
+            model: model
+          }));
+        }
         
         // Add system message
         const connectMessage = {
@@ -210,6 +219,7 @@ const WebSocketChat = forwardRef(({ model }, ref) => {
         setIsConnecting(false);
         // Stop loading when disconnected
         setIsLoading(false);
+        if (onConnectionChange) onConnectionChange(false);
         
         const disconnectMessage = {
           role: 'system',
@@ -239,6 +249,7 @@ const WebSocketChat = forwardRef(({ model }, ref) => {
     if (ws.current) {
       ws.current.close();
     }
+    if (onConnectionChange) onConnectionChange(false);
   };
 
   const sendMessage = () => {

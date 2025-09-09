@@ -126,6 +126,7 @@ class MCPClient:
         self.messages = []
         self.created_at = datetime.now()
         self.conversation_controller = ConversationController(self.gemini_client)
+        self.model = "gemini-2.5-flash"  # Default model
 
     async def connect_to_server(self, server_url: str = "http://127.0.0.1:9000/mcp"):
         """Connect to the MCP server"""
@@ -138,6 +139,10 @@ class MCPClient:
             print(f"Failed to connect to MCP server: {str(e)}")
             return False
 
+    def set_model(self, model: str):
+        """Set the model to be used for Gemini API calls"""
+        self.model = model
+
     async def call_gemini(self):
         """Call Gemini API with current messages"""
         if not self.mcp_client:
@@ -145,7 +150,7 @@ class MCPClient:
             
         async with self.mcp_client:
             response = await self.gemini_client.aio.models.generate_content(
-                model="gemini-2.5-flash",
+                model=self.model,
                 contents=self.messages,
                 config=genai.types.GenerateContentConfig(
                     temperature=0.1,
@@ -337,6 +342,14 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         while True:
             # Receive message from client
             data = await websocket.receive_json()
+            
+            # Handle model selection
+            if data.get("type") == "model_selection":
+                model = data.get("model")
+                if model:
+                    client.set_model(model)
+                continue
+            
             message = data.get("message", "")
             check_continue = data.get("check_continue", True)
             
