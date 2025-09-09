@@ -157,10 +157,10 @@ const WebSocketChat = forwardRef(({ model, onConnectionChange }, ref) => {
           }));
         }
         
-        // Add system message
+        // Add system message with model info
         const connectMessage = {
           role: 'system',
-          content: 'Connected to Data Analysis Assistant',
+          content: `Connected to Data Analysis Assistant [${model}]`,
           timestamp: new Date()
         };
         setMessages(prev => [...prev, connectMessage]);
@@ -223,7 +223,7 @@ const WebSocketChat = forwardRef(({ model, onConnectionChange }, ref) => {
         
         const disconnectMessage = {
           role: 'system',
-          content: 'Disconnected from Data Analysis Assistant',
+          content: `Disconnected from Data Analysis Assistant [${model}]`,
           timestamp: new Date()
         };
         setMessages(prev => [...prev, disconnectMessage]);
@@ -317,7 +317,7 @@ const WebSocketChat = forwardRef(({ model, onConnectionChange }, ref) => {
             <div className="welcome-message">
               <p>Welcome to the Data Analysis Assistant!</p>
               <p>This assistant can help you analyze Excel files in the data directory.</p>
-              <p>{!isConnected ? 'Please connect to start chatting.' : 'You are connected. Start by sending a message.'}</p>
+              <p>{!isConnected ? 'Please connect to start chatting.' : `You are connected to [${model}]. Start by sending a message.`}</p>
             </div>
           ) : (
             messages.map((msg, index) => (
@@ -412,7 +412,7 @@ const WebSocketChat = forwardRef(({ model, onConnectionChange }, ref) => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={isConnected ? "Type your message here..." : "Connect to start chatting..."}
+            placeholder={isConnected ? `Message [${model}]...` : "Connect to start chatting..."}
             disabled={!isConnected || isLoading}
             rows="3"
           />

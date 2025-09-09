@@ -45,29 +45,45 @@
   display: block;
   margin-bottom: var(--spacing-2);
   font-weight: 500;
-  color: #1e293b;
+  color: rgb(108, 108, 104); /* Match button text color */
+  font-size: var(--font-size-sm); /* Match button font size */
 }
 
 .model-select {
   width: 100%;
   padding: var(--spacing-2);
   border: 1px solid var(--outline);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background-color: white;
   font-size: var(--font-size-sm);
-  color: #1e293b;
+  color: rgb(108, 108, 104); /* Match button text color */
   margin-bottom: var(--spacing-2);
+  font-weight: 500; /* Match button font weight */
+  transition: all var(--transition-fast);
+}
+
+.model-select:hover {
+  background-color: rgb(231, 230, 220); /* Light beige hover like buttons */
+  cursor: pointer;
 }
 
 .custom-model-input {
   width: 100%;
   padding: var(--spacing-2);
   border: 1px solid var(--outline);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background-color: white;
   font-size: var(--font-size-sm);
-  color: #1e293b;
+  color: rgb(108, 108, 104); /* Match button text color */
   margin-bottom: var(--spacing-2);
+  font-weight: 500; /* Match button font weight */
+  transition: all var(--transition-fast);
+}
+
+.custom-model-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
 }
 
 .sidebar-controls {
