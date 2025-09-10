@@ -326,9 +326,19 @@
 
 .image-container img {
   max-width: 100%;
+  height: auto;
   border: 1px solid var(--outline);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
+  display: block;
+  margin: 0 auto;
+}
+
+.images-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-3);
 }
 
 .image-error {
@@ -339,6 +349,19 @@
   background-color: var(--surface);
   color: var(--danger);
   font-style: italic;
+}
+
+/* Responsive image handling for larger screens */
+@media (min-width: 768px) {
+  .image-container img {
+    max-width: 90%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .image-container img {
+    max-width: 80%;
+  }
 }
 
 .message-time {

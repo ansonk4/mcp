@@ -76,8 +76,13 @@ def register_tools(mcp: FastMCP):
             else:
                 return {"error": f"Unsupported chart type: {chart_type}"}
             
-            # # Convert to base64 PNG
-            img_bytes = fig.to_image(format="png")
+            # Convert to PNG with higher resolution
+            img_bytes = fig.to_image(
+                format="png",
+                width=1200,
+                height=800,
+                scale=2  # This doubles the resolution (2x)
+            )
 
             temp_file = tempfile.NamedTemporaryFile(suffix='.png', delete=False)
             temp_file.write(img_bytes)

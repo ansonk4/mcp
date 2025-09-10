@@ -79,51 +79,98 @@ const WebSocketChat = forwardRef(({ model, onConnectionChange }, ref) => {
 
   const processResponseContent = (content) => {
     let text = content;
-    let imageData = null;
+    let imageDatas = [];
     
-    // First, try to extract JSON from markdown code blocks
-    const jsonCodeBlockRegex = /```json\s*({[^`]*})\s*```/;
-    const match = content.match(jsonCodeBlockRegex);
+    // Try to parse as raw JSON first (single image format)
+    try {
+      const parsed = JSON.parse(content);
+      if (parsed.text && parsed.image_path) {
+        text = parsed.text;
+        // Extract filename from the absolute path and construct the correct URL
+        const pathSeparator = parsed.image_path.includes('\\') ? '\\' : '/';
+        const filename = parsed.image_path.split(pathSeparator).pop();
+        imageDatas = [{
+          path: parsed.image_path,
+          url: `http://localhost:8000/image/${filename}`
+        }];
+        return { text, imageDatas };
+      }
+    } catch (e) {
+      // Not raw JSON, continue with other parsing methods
+    }
     
-    if (match) {
+    // Look for JSON objects in markdown code blocks
+    const jsonCodeBlockRegex = /```json\s*(\{[^{]*"text"[^}]*"image_path"[^}]*\})\s*```/g;
+    let codeBlockMatch;
+    const codeBlocks = [];
+    
+    // Find all code blocks with image JSON
+    while ((codeBlockMatch = jsonCodeBlockRegex.exec(content)) !== null) {
       try {
-        const jsonString = match[1];
+        const fullMatch = codeBlockMatch[0];
+        const jsonString = codeBlockMatch[1];
         const parsed = JSON.parse(jsonString);
         if (parsed.text && parsed.image_path) {
-          text = parsed.text;
-          // Extract filename from the absolute path and construct the correct URL
-          // Handle both forward slashes and backslashes for cross-platform compatibility
+          // Extract filename and create image data
           const pathSeparator = parsed.image_path.includes('\\') ? '\\' : '/';
           const filename = parsed.image_path.split(pathSeparator).pop();
-          imageData = {
+          imageDatas.push({
             path: parsed.image_path,
             url: `http://localhost:8000/image/${filename}`
-          };
+          });
+          
+          // Store the full match to remove later
+          codeBlocks.push(fullMatch);
         }
       } catch (e) {
-        // If parsing fails, use the original content
-      }
-    } else {
-      // Try to parse raw JSON content
-      try {
-        const parsed = JSON.parse(content);
-        if (parsed.text && parsed.image_path) {
-          text = parsed.text;
-          // Extract filename from the absolute path and construct the correct URL
-          // Handle both forward slashes and backslashes for cross-platform compatibility
-          const pathSeparator = parsed.image_path.includes('\\') ? '\\' : '/';
-          const filename = parsed.image_path.split(pathSeparator).pop();
-          imageData = {
-            path: parsed.image_path,
-            url: `http://localhost:8000/image/${filename}`
-          };
-        }
-      } catch (e) {
-        // Not JSON, use as is
+        // Skip invalid JSON
       }
     }
     
-    return { text, imageData };
+    // Remove code blocks from text
+    let processedContent = text;
+    codeBlocks.forEach(block => {
+      processedContent = processedContent.replace(block, '');
+    });
+    
+    // Also look for raw JSON objects in the content
+    const jsonObjectRegex = /\{[^{]*"text"[^}]*"image_path"[^}]*\}/g;
+    let jsonMatch;
+    const jsonObjects = [];
+    
+    // Find all JSON objects with image data
+    while ((jsonMatch = jsonObjectRegex.exec(processedContent)) !== null) {
+      try {
+        const fullMatch = jsonMatch[0];
+        const parsed = JSON.parse(fullMatch);
+        if (parsed.text && parsed.image_path) {
+          // Extract filename and create image data
+          const pathSeparator = parsed.image_path.includes('\\') ? '\\' : '/';
+          const filename = parsed.image_path.split(pathSeparator).pop();
+          imageDatas.push({
+            path: parsed.image_path,
+            url: `http://localhost:8000/image/${filename}`
+          });
+          
+          // Store the full match to remove later
+          jsonObjects.push(fullMatch);
+        }
+      } catch (e) {
+        // Skip invalid JSON
+      }
+    }
+    
+    // Remove JSON objects from text
+    jsonObjects.forEach(obj => {
+      processedContent = processedContent.replace(obj, '');
+    });
+    
+    // Clean up the text (remove extra whitespace and normalize)
+    text = processedContent
+      .replace(/\n\s*\n\s*\n/g, '\n\n') // Replace multiple newlines with double newlines
+      .trim();
+    
+    return { text, imageDatas };
   };
 
   const connectWebSocket = () => {
@@ -175,12 +222,12 @@ const WebSocketChat = forwardRef(({ model, onConnectionChange }, ref) => {
             setIsLoading(false);
             
             // Process response content
-            const { text, imageData } = processResponseContent(data.response);
+            const { text, imageDatas } = processResponseContent(data.response);
             
             const aiMessage = {
               role: 'assistant',
               content: text,
-              imageData: imageData,
+              imageDatas: imageDatas,
               timestamp: new Date(data.timestamp),
               type: data.type
             };
@@ -327,26 +374,30 @@ const WebSocketChat = forwardRef(({ model, onConnectionChange }, ref) => {
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {msg.content}
                     </ReactMarkdown>
-                    {msg.imageData && (
-                      <div className="image-container">
-                        <img 
-                          src={msg.imageData.url} 
-                          alt="Analysis visualization" 
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            // Show error message
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'image-error';
-                            errorDiv.textContent = 'Failed to load image';
-                            errorDiv.style.color = 'red';
-                            errorDiv.style.fontStyle = 'italic';
-                            e.target.parentNode.appendChild(errorDiv);
-                          }}
-                          onLoad={(e) => {
-                            // Image loaded successfully
-                            console.log('Image loaded successfully');
-                          }}
-                        />
+                    {msg.imageDatas && msg.imageDatas.length > 0 && (
+                      <div className="images-container">
+                        {msg.imageDatas.map((imageData, index) => (
+                          <div key={index} className="image-container">
+                            <img 
+                              src={imageData.url} 
+                              alt={`Analysis visualization ${index + 1}`} 
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                // Show error message
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'image-error';
+                                errorDiv.textContent = 'Failed to load image';
+                                errorDiv.style.color = 'red';
+                                errorDiv.style.fontStyle = 'italic';
+                                e.target.parentNode.appendChild(errorDiv);
+                              }}
+                              onLoad={(e) => {
+                                // Image loaded successfully
+                                console.log('Image loaded successfully');
+                              }}
+                            />
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
